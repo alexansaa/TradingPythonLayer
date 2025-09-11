@@ -1,0 +1,89 @@
+# azure-pipelines.yml  — python-layer (Tiingo)
+# Runs on your self-hosted agent that has Docker and access to the host where containers run.
+
+trigger:
+- main
+
+pool:
+  name: Default          # <-- your self-hosted agent pool
+
+variables:
+  composeProject: trading-python
+  envFile: .env.ci
+
+stages:
+- stage: Deploy_Python_Layer
+  displayName: Deploy Python Layer
+  jobs:
+  - job: up_compose
+    displayName: Docker Compose Up (python-layer)
+    steps:
+    - checkout: self
+      clean: true
+
+    - script: |
+        set -euo pipefail
+
+        # --- sanity: docker available
+        docker version >/dev/null
+
+        # --- ensure shared external network exists
+        docker network create trading-core || true
+
+        # --- write env file (do NOT echo secrets)
+        umask 077
+        cat > $(envFile) <<'EOF'
+        # required
+        TIINGO_API_KEY=$(TIINGO_API_KEY)
+
+        # SQL Server
+        SQLSERVER_HOST=${SQLSERVER_HOST:-trading-sql}
+        SQLSERVER_DB=${SQLSERVER_DB:-trading}
+        SQLSERVER_USER=${SQLSERVER_USER:-sa}
+        SQLSERVER_PASSWORD=$(SQLSERVER_PASSWORD)
+
+        # ingestion config
+        SYMBOLS=${SYMBOLS:-AAPL,MSFT,GOOGL}
+        INIT_START_DATE=${INIT_START_DATE:-2020-01-01}
+        FETCH_INTERVAL_MINUTES=${FETCH_INTERVAL_MINUTES:-15}
+
+        # quotas
+        MAX_CALLS_PER_MINUTE=${MAX_CALLS_PER_MINUTE:-50}
+        MAX_CALLS_PER_DAY=${MAX_CALLS_PER_DAY:-4500}
+
+        # service
+        PY_LAYER_HOST_PORT=${PY_LAYER_HOST_PORT:-18080}
+        ENABLE_SCHEDULER=${ENABLE_SCHEDULER:-true}
+        EOF
+        echo "Wrote $(envFile) (bytes: $(wc -c < $(envFile)))"
+
+        # --- build & deploy
+        docker compose --project-name $(composeProject) --env-file $(envFile) build py-layer
+        docker compose --project-name $(composeProject) --env-file $(envFile) up -d py-layer
+
+        # --- health check (inside the shared network)
+        echo "Waiting for service..."
+        for i in {1..30}; do
+          if docker run --rm --network trading-core curlimages/curl:8.9.1 \
+               -fsS http://trading-py:8080/healthz | tee /tmp/healthz.json | grep -q '"ok":true'; then
+            echo "Service healthy"; break
+          fi
+          sleep 2
+        done
+
+        if ! grep -q '"ok":true' /tmp/healthz.json; then
+          echo "Service not healthy; showing logs:" >&2
+          docker compose --project-name $(composeProject) --env-file $(envFile) logs --tail=200 py-layer || true
+          exit 1
+        fi
+      displayName: Build & Deploy (compose)
+      env:
+        # Provide these as pipeline variables or via a Variable Group
+        TIINGO_API_KEY: $(TIINGO_API_KEY)            # secret
+        SQLSERVER_PASSWORD: $(SQLSERVER_PASSWORD)    # secret
+
+    # Optional: show last lines of logs for visibility (non-fatal)
+    - script: |
+        docker compose --project-name $(composeProject) --env-file $(envFile) ps
+        docker compose --project-name $(composeProject) --env-file $(envFile) logs --tail=50 py-layer || true
+      displayName: Show status

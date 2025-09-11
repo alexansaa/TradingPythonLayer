@@ -1,0 +1,41 @@
+# Version control
+.git
+.git/** 
+.gitignore
+.github/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python build/cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+.cache/
+.tox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+
+# Envs & secrets (never send to build context)
+.env
+.env.*
+.env.local
+.env.ci
+secrets/
+*.pem
+*.key
+
+# Tests/docs/examples (optional to shrink context; remove if you want them in the image)
+tests/
