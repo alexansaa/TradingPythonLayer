@@ -1,0 +1,42 @@
+name: trading-python
+
+services:
+  py-layer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # ---- required ----
+      TIINGO_API_KEY: ${TIINGO_API_KEY}
+
+      # ---- SQL Server ----
+      SQLSERVER_HOST: ${SQLSERVER_HOST}
+      SQLSERVER_DB:   ${SQLSERVER_DB}
+      SQLSERVER_USER: ${SQLSERVER_USER}
+      SQLSERVER_PASSWORD: ${SQLSERVER_PASSWORD}
+
+      # ---- ingestion config ----
+      SYMBOLS: ${SYMBOLS}
+      INIT_START_DATE: ${INIT_START_DATE}    # first-time backfill floor
+      FETCH_INTERVAL_MINUTES: ${FETCH_INTERVAL_MINUTES}
+
+      # ---- quotas ----
+      MAX_CALLS_PER_MINUTE: ${MAX_CALLS_PER_MINUTE}
+      MAX_CALLS_PER_DAY: ${MAX_CALLS_PER_DAY}
+
+      # Optional: disable scheduler for debugging
+      ENABLE_SCHEDULER: ${ENABLE_SCHEDULER}
+
+    # Publish only if you want host access. For internal-only, remove 'ports:'
+    ports:
+      - "${PY_LAYER_HOST_PORT}:8080"
+
+    restart: unless-stopped
+    networks:
+      core:
+        aliases: [trading-py]
+
+networks:
+  core:
+    external: true
+    name: trading-core
