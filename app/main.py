@@ -21,6 +21,7 @@ logger = logging.getLogger("tiingo-layer")
 app = FastAPI(title="Trading Data Layer", version="1.1.0")
 
 origins = [
+    "https://brave-meadow-0b7a0fa1e.1.azurestaticapps.net/",
     "http://localhost:8888",
     "http://127.0.0.1:8888",
     # add prod origins too, e.g. "https://app.smartpowerai.org"
