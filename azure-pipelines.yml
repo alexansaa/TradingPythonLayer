@@ -63,15 +63,14 @@ stages:
 
         # --- health check (inside the shared network)
         echo "Waiting for service..."
+        ok=0
         for i in {1..30}; do
-          if docker run --rm --network trading-core curlimages/curl:8.9.1 \
-               -fsS http://trading-py:8080/healthz | tee /tmp/healthz.json | grep -q '"ok":true'; then
-            echo "Service healthy"; break
-          fi
+          body="$(docker run --rm --network trading-core curlimages/curl:8.9.1 -fsS http://trading-py:8080/healthz || true)"
+          echo "$body" | grep -Eqi '"ok"[[:space:]]*:[[:space:]]*true|status"[[:space:]]*:[[:space:]]*"ok"' && { ok=1; break; }
           sleep 2
         done
 
-        if ! grep -q '"ok":true' /tmp/healthz.json; then
+        if [ "$ok" -ne 1 ]; then
           echo "Service not healthy; showing logs:" >&2
           docker compose --project-name $(composeProject) --env-file $(envFile) logs --tail=200 py-layer || true
           exit 1
