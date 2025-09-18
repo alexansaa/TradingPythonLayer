@@ -15,9 +15,10 @@ RUN set -eux; \
   rm -rf /var/lib/apt/lists/*
 
 # Python deps
-RUN pip install --no-cache-dir fastapi uvicorn[standard] tiingo pyodbc apscheduler python-dateutil
-
 WORKDIR /app
-COPY ./src /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r ./requirements.txt
+
+COPY ./app ./app
 ENV TZ=Etc/UTC
-CMD ["uvicorn","api:app","--host","0.0.0.0","--port","8080","--log-level","info"]
+CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8080","--log-level","info"]
