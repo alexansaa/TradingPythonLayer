@@ -9,7 +9,7 @@
 - [💻 Getting Started](#getting-started)
   - [Setup](#setup)
   - [Prerequisites](#prerequisites)
-  - [Install](#install)
+  - [Setup](#setup)
   - [Usage](#usage)
   - [Run tests](#run-tests)
   - [Deployment](#deployment)
