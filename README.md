@@ -29,6 +29,11 @@ The Python layer is Dockerized and deployed automatically through a DevOps CI/CD
 
 This layer bridges the external financial data providers and the application’s internal analytics engine, serving as the data backbone of the entire trading stack.
 
+Other repos on the App Stack for this project:
+- [Trading App Front-End](https://github.com/alexansaa/TradingAppFrontEnd)
+- [Trading App Java Layer](https://github.com/alexansaa/TradingJavaLayer)
+- [Trading App Database](https://github.com/alexansaa/Trading-db)
+
 ## 🛠 Built With <a name="built-with"></a>
 
 ### Tech Stack <a name="tech-stack"></a>
