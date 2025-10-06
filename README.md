@@ -39,7 +39,7 @@ This layer bridges the external financial data providers and the application’s
     <li><a href="https://www.python.org/">Python</a></li>
     <li><a href="https://fastapi.tiangolo.com/">FastApi</a></li>
     <li><a href="https://www.docker.com/">Docker</a></li>
-    <li><a href="https://azure.microsoft.com/es-es/products/devops">DevOps</a></li>
+    <li><a href="https://azure.microsoft.com/es-es/products/devops">Azure DevOps</a></li>
   </ul>
 </details>
 
