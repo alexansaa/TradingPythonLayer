@@ -20,9 +20,9 @@
 - [🙏 Acknowledgements](#acknowledgements)
 - [📝 License](#license)
 
-# 📖 [Trading Python Layer] <a name="about-project"></a>
+# 📖 Trading Python Layer <a name="about-project"></a>
 
-**Trading Python Layer**
+**[Trading Python Layer]**
 This project represents the Python layer of the Trading-App Stack, a containerized multi-service platform for financial data analysis and trading simulation. It serves as the data ingestion and analytics service, responsible for fetching, processing, and exposing market data to the other components of the system.
 
 The Python layer is Dockerized and deployed automatically through a DevOps CI/CD pipeline, ensuring consistent builds, environment isolation, and reliable updates to the production and certification environments.
